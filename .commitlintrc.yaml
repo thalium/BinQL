@@ -1,0 +1,13 @@
+extends:
+  - '@commitlint/config-conventional'
+rules:
+  type-enum:
+    - 2
+    - always
+    - [feat, fix, refactor, perf, docs, test, tests, chore, build, ci, style, revert, extractor]
+  # Scopes like "IDA/handlers" use slashes and mixed case — don't enforce
+  scope-case:
+    - 0
+  # Project uses mixed case after colon — don't enforce
+  subject-case:
+    - 0

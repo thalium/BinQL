@@ -1,0 +1,82 @@
+[project]
+name = "BinQL"
+version = "1.0.0"
+description = "A Binary CodeQL Extractor"
+authors = [{ name = "Thalium Team", email = "contact@thalium.re" }]
+readme = "../README.md"
+license = "MIT"
+requires-python = ">=3.10"
+
+dependencies = [
+    "idapro==0.0.10",
+]
+
+[dependency-groups]
+dev = [
+    "python-dotenv==1.2.2",
+    "pytest==9.1.1",
+    "pytest-xdist==3.8.0",
+    "ruff==0.16.6",
+    "ty==0.0.79",
+    "prek==0.5.2",
+    "pyinstrument==5.1.3",
+    "rich==15.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[tool.ruff]
+target-version = "py310"
+output-format = "grouped"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # Pyflakes
+    "UP",       # pyupgrade
+    "B",        # flake8-bugbear
+    "SIM",      # flake8-simplify
+    "I",        # isort
+    "A",        # flake8-builtins
+    "C4",       # flake8-comprehensions
+    "PT",       # flake8-pytest-style
+    "RUF",      # ruff-specific
+    "T20",      # flake8-print (catch leftover print/pprint in src)
+]
+ignore = [
+    "E501",     # line length handled by ruff format
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["T201", "T203"]  # print/pprint are intentional test output
+
+[tool.ruff.lint.isort.sections]
+idapro = ["idapro"]
+
+[tool.ruff.lint.isort]
+section-order = [
+    "idapro",
+    "future",
+    "standard-library",
+    "third-party",
+    "first-party",
+    "local-folder"
+]
+
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
+[tool.ty.src]
+include = ["src", "tests"]
+
+[tool.ty.rules]
+# IDA Python modules are injected at runtime via sys.path.append hacks
+unresolved-import = "ignore"
+# IDA stubs use wrong types for optional params
+invalid-argument-type = "ignore"
+# IDA stubs use positional-only param names (arg0, arg1) from SWIG generation
+invalid-method-override = "ignore"

@@ -1,0 +1,4 @@
+name: demo-binql
+version: 1.0.0
+dependencies:
+  thalium/binary: '*'

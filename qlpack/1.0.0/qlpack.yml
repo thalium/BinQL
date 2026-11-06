@@ -1,0 +1,9 @@
+---
+library: true
+name: thalium/binary
+version: 1.0.0
+license: MIT
+groups: binary
+extractor: binary
+dbscheme: binary.dbscheme
+upgrades: upgrades

@@ -1,0 +1,4 @@
+.venv
+codeql-binary.code-workspace
+.pytest_cache
+.ruff_cache

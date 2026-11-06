@@ -1,0 +1,578 @@
+sourceLocationPrefix(string prefix : string ref);
+
+// = Axioms
+
+locations(
+    int id: @location,
+    string binary: string ref,
+    float start: float ref,
+    float end: float ref
+)
+
+//  Based on IDA
+
+functions(
+    unique int id: @function,
+    string name: string ref,
+    int func_type: @ens_types ref,
+    int location: @location ref
+)
+
+function_bodys(
+    int function: @function ref,
+    // A 'block' may serve as the root node of a C-tree
+    int block: @node ref
+)
+
+// C-tree specific
+
+nodes(
+    unique int id: @node,
+    int location: @location ref,
+    int kind: int ref
+)
+
+// source: 'enum ctype_t' in hexrays.hpp
+case @node.kind of
+    0  = @emptyexprs                // Generics: cot_empty
+|   1  = @commaexprs                // Generics: cot_comma
+|   2  = @assignexprs               // Generics: cot_asg
+|   3  = @assignorexprs             // Generics: cot_asgbor
+|   4  = @assignxorexprs            // Generics: cot_asgxor
+|   5  = @assignandexprs            // Generics: cot_asgband
+|   6  = @assignaddexprs            // Generics: cot_asgadd
+|   7  = @assignsubexprs            // Generics: cot_asgsub
+|   8  = @assignmulexprs            // Generics: cot_asgmul
+|   9  = @assignsignedrshiftexprs   // Generics: cot_asgsshr
+|   10 = @assignunsignedrshiftexprs // Generics: cot_asgushr
+|   11 = @assignlshiftexprss        // Generics: cot_asgshl
+|   12 = @assignsigneddivexprs      // Generics: cot_asgsdiv
+|   13 = @assignunsigneddivexprs    // Generics: cot_asgudiv
+|   14 = @assignsignedremexprs      // Generics: cot_asgsmod
+|   15 = @assignunsignedremexprs    // Generics: cot_asgumod
+|   16 = @conditionalexprs          // Generics: cot_terns
+|   17 = @logicalorexprs            // Generics: cot_lors
+|   18 = @logicalandexprs           // Generics: cot_lands
+|   19 = @bitwiseorexprs            // Generics: cot_bors
+|   20 = @bitwisexorexprs           // Generics: cot_xors
+|   21 = @bitwiseandexprs           // Generics: cot_bands
+|   22 = @eqexprs                   // Generics: cot_eqs
+|   23 = @neexprs                   // Generics: cot_nes
+|   24 = @signedgeexprs             // Generics: cot_sges
+|   25 = @unsignedgeexprs           // Generics: cot_uges
+|   26 = @signedleexprs             // Generics: cot_sles
+|   27 = @unsignedleexprs           // Generics: cot_ules
+|   28 = @signedgtexprs             // Generics: cot_sgts
+|   29 = @unsignedgtexprs           // Generics: cot_ugts
+|   30 = @signedltexprs             // Generics: cot_slts
+|   31 = @unsignedltexprs           // Generics: cot_ults
+|   32 = @signedrshiftexprs         // Generics: cot_sshrs
+|   33 = @unsignedrshiftexprs       // Generics: cot_ushrs
+|   34 = @lshiftexprs               // Generics: cot_shls
+|   35 = @intaddexprs               // Generics: cot_adds
+|   36 = @intsubexprs               // Generics: cot_subs
+|   37 = @intmulexprs               // Generics: cot_muls
+|   38 = @signedintdivexprs         // Generics: cot_sdivs
+|   39 = @unsignedintdivexprs       // Generics: cot_udivs
+|   40 = @signedremexprs            // Generics: cot_smods
+|   41 = @unsignedremexprs          // Generics: cot_umods
+|   42 = @floataddexprs             // Generics: cot_fadds
+|   43 = @floatsubexprs             // Generics: cot_fsubs
+|   44 = @floatmulexprs             // Generics: cot_fmuls
+|   45 = @floatdivexprs             // Generics: cot_fdivs
+|   46 = @floatnegrexprs            // Generics: cot_fnegs
+|   47 = @intnegrexprs              // Generics: cot_negs
+|   48 = @castexprs                 // Generics: cot_casts
+|   49 = @logicnotexprs             // Generics: cot_lnots
+|   50 = @bitwisenotexprs           // Generics: cot_bnots
+|   51 = @pointerdereferenceexprs   // Generics: cot_ptrs
+|   52 = @addressofexprs            // Generics: cot_refs
+|   53 = @postfixincrexprs          // Generics: cot_postincs
+|   54 = @postfixdecrexprs          // Generics: cot_postdecs
+|   55 = @prefixincrexprs           // Generics: cot_preincs
+|   56 = @prefixdecrexprs           // Generics: cot_predecs
+|   57 = @function_calls            // cot_call
+|   58 = @arrayexprs                // cot_idx
+|   59 = @fieldaccs                 // cot_memref, `x.m`
+|   60 = @memoryptrexprs            // cot_memptr, `x->m`
+|   61 = @posintnumberliterals      // cot_num
+|   62 = @floatnumberliterals       // cot_fnum
+|   63 = @stringliterals            // cot_str
+|   64 = @cot_objs
+|   65 = @lvar_accs                 // cot_var
+|   66 = @cot_insns
+|   67 = @sizeofexprs               // cot_sizeof, a cot_helper with fixed infos
+|   68 = @intrinsics                // cot_helper
+|   69 = @cot_types
+|   70 = @emptyblockstmts           // cit_empty
+|   71 = @blockstmts                // cit_block
+|   72 = @exprstmts                 // cit_expr
+|   73 = @ifstmts
+|   74 = @forstmts
+|   75 = @whilestmts
+|   76 = @dostmts
+|   77 = @switchstmts
+|   78 = @breakstmts                // cit_breaks
+|   79 = @continuestmts             // cit_continues
+|   80 = @returnstmts               // cit_returns
+|   81 = @gotostmts
+|   82 = @cit_asms
+|   83 = @cit_trys
+|   84 = @cit_throws
+|   85 = @cit_ends
+
+|   100 = @enum_accs                //  DEPRECATED - TODO
+|   101 = @targets
+|   102 = @negintnumberliterals     // cot_num but when negative
+|   103 = @gvar_accs                // cot_var but global access
+
+|   105 = @plain_var_acc
+;
+
+// @var_acc used to be a single node kind (105); cot_memref/cot_memptr now get their
+// own kinds (59/60) so DotFieldAccess/PointerFieldAccess can tell them apart, but
+// they still need to satisfy VariableAccess's `@var_acc` characteristic predicate.
+@var_acc = @plain_var_acc | @fieldaccs | @memoryptrexprs;
+
+parents(
+    int parent: @node ref,
+    int child: @node ref,
+    int index: int ref
+)
+
+call_args(
+    int node: @node ref,
+    int call: @node ref,
+    int index: int ref
+)
+
+@ens_fieldables = @struct_type | @union_type;
+
+fields(
+    unique int id: @field,
+    string name: string ref,
+    int sf_type: @ens_types ref,
+    int offset: int ref,
+    int udt: @ens_fieldables ref
+)
+
+// Declaration
+@ens_declaration = @ens_variables | @ens_variables_accesses | @function;
+
+// Access
+@ens_accesses = @ens_variables_accesses;
+
+// Node
+@ens_node = @ens_stmt | @ens_expr;
+// Stmt
+@ens_stmt = @emptyblockstmts | @blockstmts | @exprstmts | @ens_controlstructure | @ens_jumpstmt | @cit_asms | @cit_trys | @cit_throws;
+@ens_controlstructure = @ens_conditionalstmt | @ens_loop;
+@ens_conditionalstmt = @ifstmts | @switchstmts;
+@ens_loop = @dostmts | @forstmts | @whilestmts;
+@ens_jumpstmt = @breakstmts | @continuestmts | @returnstmts | @gotostmts;
+// Expr
+@ens_expr = @arrayexprs | @emptyexprs | @commaexprs | @sizeofexprs |  @ens_conversion | @ens_operation | @ens_literal | @ens_call;
+@ens_conversion = @ens_cast;
+@ens_cast = @castexprs;
+// Operation
+@ens_operation = @ens_assignment | @ens_binaryoperation | @conditionalexprs | @ens_unaryoperation;
+// Assignment
+@ens_assignment = @ens_assignoperation;
+@ens_assignoperation = @ens_assignarithmeticoperation | @ens_assignbitwiseoperation;
+@ens_assignarithmeticoperation = @assignexprs | @assignaddexprs | @assignsubexprs | @assignmulexprs;
+@ens_assignbitwiseoperation = @assignorexprs | @assignxorexprs | @assignandexprs | @ens_assignrshiftexpr | @assignlshiftexprss | @ens_assigndivexpr | @ens_assignremexpr;
+@ens_assignrshiftexpr = @assignsignedrshiftexprs | @assignunsignedrshiftexprs;
+@ens_assigndivexpr = @assignsigneddivexprs | @assignunsigneddivexprs;
+@ens_assignremexpr = @assignsignedremexprs | @assignunsignedremexprs;
+// BinaryOperation
+@ens_binaryoperation = @ens_binarylogicalloperation
+                     | @ens_binarybitwiseoperation
+                     | @ens_comparisonoperation
+                     | @ens_binaryarithmeticoperation;
+@ens_binarylogicalloperation = @logicalorexprs | @logicalandexprs;
+@ens_binarybitwiseoperation = @bitwiseorexprs
+                            | @bitwisexorexprs
+                            | @bitwiseandexprs
+                            | @ens_rshiftexprs
+                            | @lshiftexprs;
+@ens_rshiftexprs = @signedrshiftexprs | @unsignedrshiftexprs;
+@ens_comparisonoperation = @ens_equalityoperation | @ens_relationoperation;
+@ens_equalityoperation = @eqexprs | @neexprs;
+@ens_relationoperation = @ens_geexprs | @ens_leexprs | @ens_gtexprs | @ens_ltexprs;
+@ens_geexprs = @signedgeexprs | @unsignedgeexprs;
+@ens_leexprs = @signedleexprs | @unsignedleexprs;
+@ens_gtexprs = @signedgtexprs | @unsignedgtexprs;
+@ens_ltexprs = @signedltexprs | @unsignedltexprs;
+@ens_binaryarithmeticoperation = @ens_addexprs
+                               | @ens_subexprs
+                               | @ens_mulexprs
+                               | @ens_divexprs
+                               | @ens_remexprs;
+@ens_addexprs = @intaddexprs | @floataddexprs;
+@ens_subexprs = @intsubexprs | @floatsubexprs;
+@ens_mulexprs = @intmulexprs | @floatmulexprs;
+@ens_divexprs = @ens_intdivexprs | @floatdivexprs;
+@ens_intdivexprs = @signedintdivexprs | @unsignedintdivexprs;
+@ens_remexprs = @signedremexprs | @unsignedremexprs;
+@ens_unaryoperation = @ens_unarylogicaloperation
+                    | @ens_unarybitwiseoperation
+                    | @pointerdereferenceexprs
+                    | @addressofexprs
+                    | @ens_unaryarithmeticoperation;
+@ens_unarylogicaloperation = @logicnotexprs;
+@ens_unarybitwiseoperation = @bitwisenotexprs;
+@ens_unaryarithmeticoperation = @ens_crementoperation;
+@ens_crementoperation = @ens_decrementoperation
+                      | @ens_incrementoperation
+                      | @ens_prefixcrementoperation
+                      | @ens_postfixcrementoperation;
+@ens_decrementoperation = @prefixdecrexprs | @postfixdecrexprs;
+@ens_incrementoperation = @prefixincrexprs | @postfixincrexprs;
+@ens_prefixcrementoperation = @prefixincrexprs | @prefixdecrexprs;
+@ens_postfixcrementoperation = @postfixincrexprs | @postfixdecrexprs;
+// Memory operation
+//@ens_memoryoperation = @bufferaccessexprs | @memoryptrexprs;
+// Literal
+@ens_literal = @ens_numberliteral | @stringliterals;
+@ens_numberliteral = @ens_intnumberliteral | @floatnumberliterals;
+@ens_intnumberliteral = @posintnumberliterals | @negintnumberliterals;
+@ens_call = @function_calls;
+
+cot_fnegs(
+    int node: @node ref
+)
+
+cot_negs(
+    int node: @node ref
+)
+
+// NEEDED
+
+castexprs(
+    int node: @node ref,
+    string expression: string ref
+)
+
+pointerdereferenceexprs(
+    int node: @node ref,
+    string value: string ref
+)
+
+
+posintnumberliterals(
+    int node: @node ref,
+    // Exact decimal number string, not int/float -- mirrors upstream CodeQL C++'s
+    // `values` table. See https://github.com/github/codeql/issues/4691.
+    string value: string ref
+)
+
+negintnumberliterals(
+    int node: @node ref,
+    string value: string ref // see posintnumberliterals
+)
+
+floatnumberliterals(
+    int node: @node ref,
+    // Exact decimal string, or "NaN" / "Infinity" / "-Infinity".
+    // See posintnumberliterals.
+    string value: string ref
+)
+
+cot_strs(
+    int node: @node ref,
+    int value: string ref
+)
+
+cot_objs(
+    int node: @node ref,
+    string name: string ref,
+    string obj_type: string ref
+)
+
+// cot_vars
+@ens_variables = @lvar | @gvar;
+
+lvars(
+    unique int id: @lvar,
+    int function: @function ref,
+    string name: string ref,
+    boolean is_parameter: boolean ref,
+    int lvars_type: @ens_types ref
+)
+
+gvars(
+    unique int id: @gvar,
+    string name: string ref,
+    int gvars_type: @ens_types ref
+)
+
+@ens_accessables = @ens_variables | @field | @enum_constant;
+@ens_variables_accesses = @lvar_accs | @gvar_accs | @var_acc;
+
+var_accs(
+    int node: @node ref,
+    int target: @ens_accessables ref
+)
+
+gvar_accs(
+    int node: @node ref,
+    int variable: @gvar ref
+)
+
+lvar_accs(
+    int node: @node ref,
+    int variable: @lvar ref
+)
+
+intrinsics(
+    int node: @node ref,
+    int target: @node ref
+)
+
+// cot_types
+
+//  == cit_
+
+ifstmts(
+    int node: @node ref
+)
+
+forstmts(
+    int node: @node ref
+)
+
+whilestmts(
+    int node: @node ref
+)
+
+// TODO: dostmts
+
+// One row per case; child_index is its body's position among the switch's
+// children (the controlling expr comes last).
+switch_cases(
+    unique int id: @switch_case,
+    int switch_stmt: @switchstmts ref,
+    int index: int ref,
+    int child_index: int ref
+)
+
+// Exact signed decimal, like posintnumberliterals. No row for `default`.
+switch_case_values(
+    int switch_case: @switch_case ref,
+    string value: string ref
+)
+
+// TODO: cit_breaks
+// TODO: cit_continues
+
+cit_returns(
+    int node: @node ref
+)
+
+asm_stmt_insns(
+    unique int id: @asm_insn,
+    int asm_stmt: @cit_asms ref,
+    int index: int ref,
+    float ea: float ref,
+    string mnemonic: string ref,
+    string text: string ref     // full disassembly line, color tags removed
+)
+
+// The tried body, every catch handler's body, and each handler's caught-object
+// expression share one flat, undifferentiated child list on the @cit_trys node
+// itself, in that order (Hex-Rays exposes no marker of its own for any of these
+// boundaries) -- trystmts.try_body_len, catch_handlers.body_start/body_len, and
+// catch_handler_params.child_index carve that single child list back into its
+// tried/caught parts.
+trystmts(
+    int node: @cit_trys ref,
+    int try_body_len: int ref
+)
+
+catch_handlers(
+    unique int id: @catch_handler,
+    int try_stmt: @cit_trys ref,
+    int index: int ref,
+    int body_start: int ref,
+    int body_len: int ref
+)
+
+// No row for a catch-all handler (`catch (...)`, no bound exception object).
+catch_handler_params(
+    int handler: @catch_handler ref,
+    int child_index: int ref,
+    int caught_type: @ens_types ref
+)
+
+// From scratch
+
+function_calls(
+    int node: @node ref,
+    int target: @function ref,
+    boolean isrealfunction: boolean ref
+)
+
+gotostmts(
+    int node: @node ref,
+    int l_index: @label ref,
+    string l_name: string ref
+)
+
+labels(
+    unique int index: @label,
+    int node: @node ref
+)
+
+stringliterals(
+    int node: @node ref,
+    string value: string ref
+)
+
+
+// Type system
+@ens_types = @basic_type | @complex_types;
+@complex_types = @array_type | @enum_type | @enum_constant | @func_type | @pointer_type | @struct_type | @typedef_type | @union_type | @const_type | @volatile_type | @forward_type;
+@ens_userdefinedtype = @struct_type | @union_type | @union_type
+
+basic_types(
+    unique int id: @basic_type,
+    string name: string ref,
+    int kind: int ref,
+    float size: float ref
+)
+
+array_types(
+    unique int id: @array_type,
+    int target: @ens_types ref,
+    int nb: int ref,
+    float size: float ref
+)
+
+enum_types(
+    unique int id: @enum_type,
+    string name: string ref,
+    int size: int ref
+)
+
+enum_constants(
+    unique int id: @enum_constant,
+    string name: string ref,
+    // Exact decimal number string, not int -- see posintnumberliterals; same overflow
+    // class as https://github.com/github/codeql/issues/4691.
+    string value: string ref,
+    int enum: @enum_type ref
+)
+
+func_types(
+    unique int id: @func_type,
+    int retType: @ens_types ref,
+    string cc: string ref
+)
+
+func_type_args(
+    int func_type: @func_type ref,
+    int index: int ref,
+    int arg_type: @ens_types ref
+)
+
+pointer_types(
+    unique int id: @pointer_type,
+    int target: @ens_types ref,
+    int depth: int ref
+)
+
+struct_types(
+    unique int id: @struct_type,
+    string name: string ref,
+    float size: float ref
+)
+
+typedef_types(
+    unique int id: @typedef_type,
+    string name: string ref,
+    int target: @ens_types ref
+)
+
+union_types(
+    unique int id: @union_type,
+    string name: string ref
+)
+
+const_types(
+    unique int id: @const_type,
+    int target: @ens_types ref
+)
+
+volatile_types(
+    unique int id: @volatile_type,
+    int target: @ens_types ref
+)
+
+forward_types(
+    unique int id: @forward_type,
+    string name: string ref
+)
+
+// source: 'ida_typeinf.BT*' in ida_typeinf.py
+// case @type.kind of
+//     0  = @unknowntypes          //
+// |   30 = @unknowntypes          //
+
+// |   1  = @voidtypes             //
+// |   8  = @booltypes             //
+
+// |   32 = @chartypes             //
+// |   50 = @chartypes             //
+
+// |   7  = @signedinttypes        //
+// |   39 = @unsignedinttypes      //
+
+// |   18 = @signedint8types       //
+// |   34 = @unsignedint8types     //
+
+// |   19 = @signedint16types      //
+// |   35 = @unsignedint16types    //
+
+// |   20 = @signedint32types      //
+// |   36 = @unsignedint32types    //
+
+// |   5  = @signedint64types      //
+// |   21 = @signedint64types      //
+// |   37 = @unsignedint64types    //
+
+// |   22 = @signedint128types     //
+// |   38 = @unsignedint128types   //
+
+// |   5  = @floattypes
+// |   21 = @doubletypes
+// |   37 = @longdoubletypes
+// ;
+
+//source: 'ida_typeinf.BT*' in ida_typeinf.py
+case @basic_type.kind of
+    0  = @voidtypes             //
+|   1 = @unknowntypes           //
+|   2  = @bytetypes             //
+|   3  = @booltypes             //
+
+|   4  = @int8types             //
+|   5  = @unsignedint8types     //
+|   6 = @chartypes              //
+|   7  = @unsignedchartypes     //
+|   8 = @int16types             //
+|   9 = @unsignedint16types     //
+|   10 = @int32types            //
+|   11 = @unsignedint32types    //
+|   12  = @int64types           //
+|   13 = @unsignedint64types    //
+|   14 = @int128types           //
+|   15 = @unsignedint128types   //
+|   16 = @inttypes              //
+|   17 = @unsignedinttypes      //
+|   18 = @signedinttypes        //
+
+|   19  = @floattypes           //
+|   20 = @doubletypes           //
+|   21 = @longdoubletypes       //
+|   22 = @variablefloattypes    //
+;

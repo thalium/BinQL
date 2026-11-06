@@ -1,0 +1,65 @@
+sourceLocationPrefix(string prefix : string ref);
+
+// Based on IDA's CTREE
+
+statements(
+    int id: @node,
+    int location: @location ref
+)
+
+blocks(
+    int statement: @node ref
+)
+
+expressions(
+    int statement: @node ref
+)
+
+asgeqs(
+    int statement: @node ref
+)
+
+numbers(
+    int statement: @node ref,
+    int value: int ref
+)
+
+returns(
+    int statement: @node ref
+)
+
+calls(
+    int statement: @node ref,
+    int target: string ref
+)
+
+objects(
+    int statement: @node ref,
+    string name: string ref,
+    string obj_type: string ref
+)
+
+variables(
+    int statement: @node ref,
+    string name: string ref
+)
+
+casts(
+    int statement: @node ref,
+    string expression: string ref
+)
+
+//
+
+locations(
+    int id: @location,
+    string binary: string ref,
+    int start: int ref,
+    int end: int ref
+)
+
+parents(
+    int id: @parent,
+    int parent: @node ref,
+    int child: @node ref
+)

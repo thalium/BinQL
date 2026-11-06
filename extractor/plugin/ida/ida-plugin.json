@@ -1,0 +1,41 @@
+{
+  "$schema": "https://hcli.docs.hex-rays.com/schemas/ida-plugin.json",
+  "IDAMetadataDescriptorVersion": 1,
+  "plugin": {
+    "name": "BinQL",
+    "entryPoint": "ida-plugin-stub.py",
+    "version": "1.0.0",
+    "idaVersions": ["9.0", "9.1", "9.2", "9.3", "9.4", "9.5"],
+    "platforms": ["linux-x86_64", "linux-aarch64", "macos-x86_64", "macos-aarch64"],
+    "description": "Turns any binary into a CodeQL database, query the pseudocode with CodeQL like C/C++ source.",
+    "license": "MIT",
+    "categories": [
+      "decompilation",
+      "integration-with-third-parties-interoperability",
+      "api-scripting-and-automation",
+      "vulnerability-research-and-exploit-development"
+    ],
+    "pythonDependencies": [],
+    "urls": {
+      "repository": "https://github.com/thalium/binql"
+    },
+    "authors": [
+      {"name": "Thalium Team", "email": "contact@thalium.re", "url": "https://twitter.com/thalium_team"}
+    ],
+    "maintainers": [
+      {"name": "Thalium Team", "email": "contact@thalium.re", "url": "https://twitter.com/thalium_team"}
+    ],
+    "keywords": [
+      "codeql",
+      "reverse-engineering",
+      "static-analysis",
+      "binary-analysis",
+      "hex-rays",
+      "decompiler",
+      "ctree",
+      "pseudocode",
+      "idalib",
+      "vulnerability-research"
+    ]
+  }
+}

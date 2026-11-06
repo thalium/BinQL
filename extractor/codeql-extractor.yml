@@ -1,0 +1,10 @@
+name: "binary"
+display_name: "BinQL, CodeQL for binary files "
+version: 1.0.0
+column_types: "utf-8"
+file_types:
+  - name: binary
+    display_name: binary
+    extensions:
+      - ".bin"
+legacy_qltest_extraction: true

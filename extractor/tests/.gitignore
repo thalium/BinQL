@@ -1,0 +1,6 @@
+databases
+bin
+.env
+**.ql
+**.bqrs
+**.csv

@@ -1,0 +1,18 @@
+set dotenv-load := true
+set positional-arguments := true
+
+# Run tests normally
+test *args:
+    uv run pytest "$@"
+
+# Run tests in parallel
+test-parallel *args:
+    uv run pytest -n auto --dist=loadscope "$@"
+
+# Rebuild test binaries
+build:
+    make all
+
+# Clean built artifacts
+clean:
+    make clean
